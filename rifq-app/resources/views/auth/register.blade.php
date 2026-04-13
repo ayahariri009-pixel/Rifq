@@ -55,6 +55,13 @@
                 <x-text-input id="birth_date" class="block mt-1 w-full" type="date" name="birth_date" :value="old('birth_date')" required />
                 <x-input-error :messages="$errors->get('birth_date')" class="mt-2" />
             </div>
+
+            <!-- Username -->
+            <div>
+                <x-input-label for="username" :value="__('Username')" />
+                <x-text-input id="username" class="block mt-1 w-full" type="text" name="username" :value="old('username')" autocomplete="username" />
+                <x-input-error :messages="$errors->get('username')" class="mt-2" />
+            </div>
         </div>
 
         <!-- Password -->

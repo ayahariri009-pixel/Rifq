@@ -57,4 +57,26 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+    public function requestTeamUpgrade(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        if ($user->isDataEntry() || $user->isAdmin()) {
+            return Redirect::route('profile.edit')
+                ->with('error', __('messages.already_have_team_access'));
+        }
+
+        $request->validate([
+            'independent_team_id' => 'required|exists:independent_teams,id',
+            'reason' => 'nullable|string|max:1000',
+        ]);
+
+        $user->independent_team_id = $request->input('independent_team_id');
+        $user->syncRoles(['data_entry']);
+        $user->save();
+
+        return Redirect::route('profile.edit')
+            ->with('status', 'team-upgrade-requested');
+    }
 }

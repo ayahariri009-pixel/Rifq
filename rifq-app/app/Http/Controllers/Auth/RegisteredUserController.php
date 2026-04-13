@@ -16,28 +16,21 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
     public function create(): View
     {
         return view('auth.register');
     }
 
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws ValidationException
-     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'username' => ['nullable', 'string', 'max:255', 'unique:' . User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'phone_number' => ['required', 'string', 'max:255'],
             'gender' => ['required', 'in:Male,Female'],
-            'national_id' => ['required', 'string', 'unique:'.User::class],
+            'national_id' => ['required', 'string', 'unique:' . User::class],
             'birth_date' => ['required', 'date'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
@@ -45,9 +38,10 @@ class RegisteredUserController extends Controller
         $citizenRole = Role::where('role_name', 'Citizen')->first();
 
         $user = User::create([
-            'role_id' => $citizenRole->id,
+            'role_id' => $citizenRole?->id,
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
+            'username' => $request->username,
             'email' => $request->email,
             'phone_number' => $request->phone_number,
             'gender' => $request->gender,
@@ -56,10 +50,12 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        $user->assignRole('citizen');
+
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('home', absolute: false));
     }
 }

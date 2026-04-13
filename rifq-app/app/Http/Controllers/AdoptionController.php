@@ -24,7 +24,7 @@ class AdoptionController extends Controller
     public function show(Animal $animal): View
     {
         $animal->load(['organization', 'medicalRecords' => function ($query) {
-            $query->orderBy('record_date', 'desc')->limit(5);
+            $query->orderBy('visit_date', 'desc')->limit(5);
         }]);
 
         $existingRequest = null;

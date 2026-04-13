@@ -20,6 +20,7 @@ class User extends Authenticatable
         'organization_id',
         'first_name',
         'last_name',
+        'username',
         'gender',
         'national_id',
         'birth_date',
@@ -28,6 +29,8 @@ class User extends Authenticatable
         'phone_number',
         'specialization',
         'academic_level',
+        'governorate_id',
+        'independent_team_id',
     ];
 
     protected $hidden = [
@@ -54,6 +57,16 @@ class User extends Authenticatable
         return $this->belongsTo(Organization::class);
     }
 
+    public function governorate(): BelongsTo
+    {
+        return $this->belongsTo(Governorate::class);
+    }
+
+    public function independentTeam(): BelongsTo
+    {
+        return $this->belongsTo(IndependentTeam::class);
+    }
+
     public function medicalRecords(): HasMany
     {
         return $this->hasMany(MedicalRecord::class, 'vet_id');
@@ -72,5 +85,35 @@ class User extends Authenticatable
     public function ownedAnimals(): HasMany
     {
         return $this->hasMany(Animal::class, 'owner_id');
+    }
+
+    public function createdAnimals(): HasMany
+    {
+        return $this->hasMany(Animal::class, 'created_by');
+    }
+
+    public function getFullNameAttribute(): string
+    {
+        return trim($this->first_name . ' ' . $this->last_name);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('admin');
+    }
+
+    public function isDataEntry(): bool
+    {
+        return $this->hasRole('data_entry');
+    }
+
+    public function isVet(): bool
+    {
+        return $this->hasRole('vet');
+    }
+
+    public function isCitizen(): bool
+    {
+        return $this->hasRole('citizen');
     }
 }

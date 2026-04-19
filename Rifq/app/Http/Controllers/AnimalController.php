@@ -50,6 +50,13 @@ class AnimalController extends Controller
         return view('animals.index', compact('animals', 'teams'));
     }
 
+    public function create(): View
+    {
+        $teams = IndependentTeam::with('governorate')->get();
+
+        return view('animals.data_entry', ['animal' => null, 'teams' => $teams]);
+    }
+
     public function edit(Animal $animal): View
     {
         $animal->load(['independentTeam', 'creator']);

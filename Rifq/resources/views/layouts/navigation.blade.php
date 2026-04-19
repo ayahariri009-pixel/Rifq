@@ -18,7 +18,7 @@
 
                     @auth
                         @if(auth()->user()->isAdmin())
-                            <x-nav-link :href="/admin" :active="request()->is('admin')">
+                            <x-nav-link href="/admin" :active="request()->is('admin')">
                                 {{ __('messages.dashboard') ?: 'لوحة التحكم' }}
                             </x-nav-link>
                         @endif

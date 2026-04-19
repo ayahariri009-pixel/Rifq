@@ -29,6 +29,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware(['role:admin|data_entry|vet'])->group(function () {
         Route::get('/animals', [AnimalController::class, 'index'])->name('animals.index');
+        Route::get('/animals/data-entry', [AnimalController::class, 'create'])->name('animals.create');
         Route::get('/animals/data-entry/{animal}', [AnimalController::class, 'edit'])
             ->middleware('pet.data_entry_access')
             ->name('animals.data-entry');

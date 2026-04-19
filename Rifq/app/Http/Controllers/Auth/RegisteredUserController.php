@@ -47,8 +47,10 @@ class RegisteredUserController extends Controller
             'gender' => $request->gender,
             'national_id' => $request->national_id,
             'birth_date' => $request->birth_date,
-            'password' => Hash::make($request->password),
         ]);
+
+        $user->password = Hash::make($request->password);
+        $user->save();
 
         $user->assignRole('citizen');
 

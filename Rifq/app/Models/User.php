@@ -3,17 +3,20 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
-    use HasFactory, Notifiable, SoftDeletes, HasRoles;
+    use HasFactory, Notifiable, SoftDeletes, HasRoles, HasApiTokens;
 
     protected $fillable = [
         'role_id',
@@ -25,7 +28,6 @@ class User extends Authenticatable
         'national_id',
         'birth_date',
         'email',
-        'password',
         'phone_number',
         'specialization',
         'academic_level',
@@ -45,6 +47,15 @@ class User extends Authenticatable
             'password' => 'hashed',
             'birth_date' => 'date',
         ];
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        if ($panel->getId() === 'admin') {
+            return $this->hasRole('admin');
+        }
+
+        return false;
     }
 
     public function role(): BelongsTo

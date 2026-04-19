@@ -19,6 +19,10 @@ class HomeController extends Controller
             return redirect()->route('filament.admin.pages.dashboard');
         }
 
+        if ($user->isVet()) {
+            return $this->vetDashboard($user);
+        }
+
         if ($user->isDataEntry() && $user->independentTeam) {
             return $this->teamDashboard($user);
         }
@@ -46,5 +50,16 @@ class HomeController extends Controller
             'team', 'totalAnimals', 'enteredAnimals',
             'pendingAnimals', 'recentAnimals'
         ));
+    }
+
+    private function vetDashboard($user): View
+    {
+        $recentRecords = $user->medicalRecords()
+            ->with('animal')
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+
+        return view('vet.dashboard', compact('recentRecords'));
     }
 }

@@ -27,25 +27,37 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/password', [AuthController::class, 'changePassword']);
     });
 
-    Route::get('/dashboard-stats', [ApiLookupController::class, 'dashboardStats']);
-
-    Route::apiResource('animals', ApiAnimalController::class)->parameter('animal', 'uuid')->except(['show']);
     Route::get('/animals/{uuid}', [ApiAnimalController::class, 'show']);
-
-    Route::get('/animals/{animalUuid}/medical-records', [ApiMedicalRecordController::class, 'index']);
-    Route::post('/animals/{animalUuid}/medical-records', [ApiMedicalRecordController::class, 'store']);
-    Route::get('/animals/{animalUuid}/medical-records/{medicalRecord}', [ApiMedicalRecordController::class, 'show']);
-    Route::put('/animals/{animalUuid}/medical-records/{medicalRecord}', [ApiMedicalRecordController::class, 'update']);
-    Route::delete('/animals/{animalUuid}/medical-records/{medicalRecord}', [ApiMedicalRecordController::class, 'destroy']);
-
-    Route::get('/animals/{animalUuid}/ai-scans', [ApiAIScanController::class, 'index']);
-    Route::get('/animals/{animalUuid}/ai-scans/{aiScan}', [ApiAIScanController::class, 'show']);
-    Route::post('/ai/analyze', [ApiAIScanController::class, 'analyze']);
-    Route::get('/ai/my-scans', [ApiAIScanController::class, 'myScans']);
+    Route::get('/animals', [ApiAnimalController::class, 'index']);
 
     Route::get('/adoptions', [ApiAdoptionController::class, 'index']);
     Route::get('/adoptions/{animal}', [ApiAdoptionController::class, 'show']);
     Route::post('/adoptions/{animal}/request', [ApiAdoptionController::class, 'submitRequest']);
     Route::get('/adoptions/my-requests', [ApiAdoptionController::class, 'myRequests']);
     Route::post('/adoptions/requests/{adoptionRequest}/cancel', [ApiAdoptionController::class, 'cancelRequest']);
+
+    Route::middleware('role:admin|data_entry|vet')->group(function () {
+        Route::post('/animals', [ApiAnimalController::class, 'store']);
+        Route::put('/animals/{uuid}', [ApiAnimalController::class, 'update']);
+        Route::get('/dashboard-stats', [ApiLookupController::class, 'dashboardStats']);
+    });
+
+    Route::middleware('role:admin')->group(function () {
+        Route::delete('/animals/{uuid}', [ApiAnimalController::class, 'destroy']);
+    });
+
+    Route::middleware('role:admin|vet')->group(function () {
+        Route::get('/animals/{animalUuid}/medical-records', [ApiMedicalRecordController::class, 'index']);
+        Route::post('/animals/{animalUuid}/medical-records', [ApiMedicalRecordController::class, 'store']);
+        Route::get('/animals/{animalUuid}/medical-records/{medicalRecord}', [ApiMedicalRecordController::class, 'show']);
+        Route::put('/animals/{animalUuid}/medical-records/{medicalRecord}', [ApiMedicalRecordController::class, 'update']);
+        Route::delete('/animals/{animalUuid}/medical-records/{medicalRecord}', [ApiMedicalRecordController::class, 'destroy']);
+    });
+
+    Route::middleware('role:admin|vet')->group(function () {
+        Route::get('/animals/{animalUuid}/ai-scans', [ApiAIScanController::class, 'index']);
+        Route::get('/animals/{animalUuid}/ai-scans/{aiScan}', [ApiAIScanController::class, 'show']);
+        Route::post('/ai/analyze', [ApiAIScanController::class, 'analyze']);
+        Route::get('/ai/my-scans', [ApiAIScanController::class, 'myScans']);
+    });
 });
